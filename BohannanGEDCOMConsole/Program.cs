@@ -28,7 +28,7 @@ namespace BohannanGEDCOMConsole
 
                 return family.TotalNames > 0 ? family : null;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
@@ -52,6 +52,10 @@ namespace BohannanGEDCOMConsole
                 Console.WriteLine($"Bohannon: {familyNamesCount.BohannonNames}");
                 Console.WriteLine($"Bohannan: {familyNamesCount.BohannanNames}\n");
                 Console.WriteLine($"Total: {familyNamesCount.TotalNames}");
+            }
+            else
+            {
+                Console.WriteLine($"No names found in Gedcom or exception occurred. Please check console.");
             }
         }
     }
