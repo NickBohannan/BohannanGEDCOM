@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Linq;
-using GeneGenie.Gedcom.Parser;
 using System.Collections.Generic;
-using System.IO;
-using CsvHelper;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using CsvHelper;
 using CsvHelper.Configuration;
+using GeneGenie.Gedcom.Parser;
 
 namespace BohannanGEDCOMConsole
 {
@@ -108,7 +108,5 @@ namespace BohannanGEDCOMConsole
                 csv.WriteRecords(PopulateCSV(familyNames.BohananNames));
             }
         }
-
-        // Given - surname - address - 
     }
 }
