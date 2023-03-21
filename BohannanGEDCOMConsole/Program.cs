@@ -90,9 +90,9 @@ namespace BohannanGEDCOMConsole
 
             if (familyNames != null)
             {
-                Console.WriteLine($"Bohanan: {familyNames.BohananNames}");
-                Console.WriteLine($"Bohannon: {familyNames.BohannonNames}");
-                Console.WriteLine($"Bohannan: {familyNames.BohannanNames}\n");
+                Console.WriteLine($"Bohanan: {familyNames.BohananNames.Count()}");
+                Console.WriteLine($"Bohannon: {familyNames.BohannonNames.Count()}");
+                Console.WriteLine($"Bohannan: {familyNames.BohannanNames.Count()}\n");
             }
             else
             {
