@@ -3,19 +3,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Reflection.PortableExecutable;
 using CsvHelper;
 using CsvHelper.Configuration;
 using GeneGenie.Gedcom.Parser;
 
 namespace BohannanGEDCOMConsole
 {
-    public class FamilyNames
-    {
-        public IEnumerable<GeneGenie.Gedcom.GedcomIndividualRecord> BohananNames;
-        public IEnumerable<GeneGenie.Gedcom.GedcomIndividualRecord> BohannonNames;
-        public IEnumerable<GeneGenie.Gedcom.GedcomIndividualRecord> BohannanNames;
-    }
-
     public class CsvEntry
     {
         public string FirstName;
@@ -39,18 +34,21 @@ namespace BohannanGEDCOMConsole
 
     class Program
     {
-        static FamilyNames GetFamilyNames(GedcomRecordReader reader)
+        static List<GeneGenie.Gedcom.GedcomIndividualRecord> GetAllFamilyNames(GedcomRecordReader reader, string[] args)
         {
+            List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList = new List<GeneGenie.Gedcom.GedcomIndividualRecord>();
+
             try
             {
-                FamilyNames family = new FamilyNames
+                for (int i = 1; i < args.Length; i++)
                 {
-                    BohananNames = reader.Database.Individuals.Where(ind => ind.Names.Any(name => name.Surname == "Bohanan")),
-                    BohannonNames = reader.Database.Individuals.Where(ind => ind.Names.Any(name => name.Surname == "Bohannon")),
-                    BohannanNames = reader.Database.Individuals.Where(ind => ind.Names.Any(name => name.Surname == "Bohannan"))
-                };
+                    Console.WriteLine($"Adding {args[i]} names...");
+                    int prevLength = familyList.Count();
+                    familyList.AddRange(reader.Database.Individuals.Where(ind => ind.Names.Any(name => name.Surname == args[i])));
+                    Console.WriteLine($"Added {familyList.Count() - prevLength}");
+                }
 
-                return family.BohananNames.Count() > 0 ? family : null;
+                return familyList.Count() > 0 ? familyList : null;
             }
             catch (Exception ex)
             {
@@ -59,17 +57,17 @@ namespace BohannanGEDCOMConsole
             return null;
         }
 
-        static List<CsvEntry> PopulateCSV(IEnumerable<GeneGenie.Gedcom.GedcomIndividualRecord> nameList)
+        static List<CsvEntry> PopulateCSV(List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList)
         {
             var tempList = new List<CsvEntry>();
 
-            foreach (GeneGenie.Gedcom.GedcomIndividualRecord record in nameList)
+            foreach (GeneGenie.Gedcom.GedcomIndividualRecord record in familyList)
             {
                 tempList.Add(new CsvEntry()
                 {
                     FirstName = record.Names[0]?.Given,
                     LastName = record.Names[0]?.Surname,
-                    Address = $"{record.Address?.AddressLine1} {record.Address?.AddressLine2} {record.Address?.AddressLine3} {record.Address?.City}, {record.Address?.State} {record.Address?.PostCode}",
+                    Address = $"{record.Address?.City}, {record.Address?.State}",
                     Birthday = record.Birth?.Date?.DateString,
                     IsAlive = (record.Dead) ? "No" : "Yes"
                 });
@@ -79,33 +77,27 @@ namespace BohannanGEDCOMConsole
 
         static void Main(string[] args)
         {
-            var gedcomReader = GedcomRecordReader.CreateReader("/Users/nickbohannan/Downloads/Bohannan_03_03_2023.ged");
+            var gedcomReader = GedcomRecordReader.CreateReader(args[0]);
 
             if (gedcomReader.Parser.ErrorState != GeneGenie.Gedcom.Enums.GedcomErrorState.NoError)
             {
                 Console.WriteLine($"Could not read file, encountered error {gedcomReader.Parser.ErrorState}.");
             }
 
-            var familyNames = GetFamilyNames(gedcomReader); // Bohanan Bohannan Bohannon
+            List<GeneGenie.Gedcom.GedcomIndividualRecord> familyNames = GetAllFamilyNames(gedcomReader, args);
 
-            if (familyNames != null)
-            {
-                Console.WriteLine($"Bohanan: {familyNames.BohananNames.Count()}");
-                Console.WriteLine($"Bohannon: {familyNames.BohannonNames.Count()}");
-                Console.WriteLine($"Bohannan: {familyNames.BohannanNames.Count()}\n");
-            }
-            else
-            {
-                Console.WriteLine($"No names found in Gedcom or exception occurred. Please check console.");
-            }
+            var culture = new CultureInfo("en-US");
 
-            using (var writer = new StreamWriter("BoNames.csv"))
+            StringBuilder dateSb = new StringBuilder(DateTime.Now.ToString(culture));
+            dateSb.Replace("/", "_");
+            dateSb.Replace(" ", "_");
+            dateSb.Replace(":", "_");
+
+            using (var writer = new StreamWriter($"GEDCOM_CSV_{dateSb}.csv"))
             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
                 csv.Context.RegisterClassMap<CsvEntryMap>();
-                csv.WriteRecords(PopulateCSV(familyNames.BohannanNames));
-                csv.WriteRecords(PopulateCSV(familyNames.BohannonNames));
-                csv.WriteRecords(PopulateCSV(familyNames.BohananNames));
+                csv.WriteRecords(PopulateCSV(familyNames));
             }
         }
     }
