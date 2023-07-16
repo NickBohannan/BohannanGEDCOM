@@ -97,49 +97,7 @@ namespace BohannanGEDCOMConsole
             }
 
             Task.WaitAll(tasks);
-            // Add to ConcurrentBag concurrently
-            //ConcurrentBag<List<GeneGenie.Gedcom.GedcomIndividualRecord>> listBag = new ConcurrentBag<List<GeneGenie.Gedcom.GedcomIndividualRecord>>();
-            //ConcurrentBag<GedcomRecordReader> readerBag = new ConcurrentBag<GedcomRecordReader>();
-
-            //List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList = new();
-
-            //List<Task> bagAddTasks = new List<Task>();
-
-            //for (int i = 0; i < args.Length - 1; i++)
-            //{
-            //    int innerI = i;
-            //    bagAddTasks.Add(Task.Run(() => listBag.Add(new List<GeneGenie.Gedcom.GedcomIndividualRecord>())));
-            //    bagAddTasks.Add(Task.Run(() => readerBag.Add(GedcomRecordReader.CreateReader($"{args[0].Substring(0, 46)}_{innerI}.ged"))));
-            //}
-
-            //// Wait for all tasks to complete
-            //Task.WaitAll(bagAddTasks.ToArray());
-
-
-
-            //Console.WriteLine("Finished adding tasks...");
-
-            //// Consume the items in the bag
-            //List<Task> bagConsumeTasks = new List<Task>();
-
-            //for (int i = 0; i < args.Length - 1; i++)
-            //{
-            //    int itemsInBag = i;
-            //    bagConsumeTasks.Add(Task.Run(() =>
-            //    {
-            //        List<GeneGenie.Gedcom.GedcomIndividualRecord> listItem;
-            //        GedcomRecordReader readerItem;
-
-            //        if (listBag.TryTake(out listItem) && readerBag.TryTake(out readerItem))
-            //        {
-            //            listItem = threadFunc(args, itemsInBag, readerItem);
-            //            familyList.AddRange(listItem);
-            //        }
-            //    }));
-            //}
-
-            //Task.WaitAll(bagConsumeTasks.ToArray());
-
+           
             return familyList;
         }
     }
