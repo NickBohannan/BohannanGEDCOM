@@ -10,5 +10,6 @@
   <ItemGroup>
     <PackageReference Include="GeneGenie.Gedcom" Version="1.0.3" />
     <PackageReference Include="CsvHelper" Version="30.0.1" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.6" />
   </ItemGroup>
 </Project>
