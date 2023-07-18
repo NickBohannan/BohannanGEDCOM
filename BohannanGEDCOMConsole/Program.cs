@@ -52,7 +52,7 @@ namespace BohannanGEDCOMConsole
         {
             Stopwatch sw = Stopwatch.StartNew();
 
-            //SingleThreadedGedcomParser gParser = new SingleThreadedGedcomParser();
+            // SingleThreadedGedcomParser gParser = new SingleThreadedGedcomParser();
             MultiThreadedGedcomParser gParser = new MultiThreadedGedcomParser();
 
             List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList = gParser.ParseGedcom(args);

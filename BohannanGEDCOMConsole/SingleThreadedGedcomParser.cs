@@ -11,9 +11,25 @@ namespace BohannanGEDCOMConsole
 {
 	public class SingleThreadedGedcomParser : IGedcomParser
 	{
-		public SingleThreadedGedcomParser()
-		{
-		}
+        public SingleThreadedGedcomParser() { }
+
+        public void CreateCSV(List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList)
+        {
+            var culture = new CultureInfo("en-US");
+
+            StringBuilder dateSb = new StringBuilder(DateTime.Now.ToString(culture));
+            dateSb.Replace("/", "_");
+            dateSb.Replace(" ", "_");
+            dateSb.Replace(":", "_");
+
+            using (var writer = new StreamWriter($"GEDCOM_CSV_{dateSb}.csv"))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                Console.WriteLine("Writing to CSV...");
+                csv.Context.RegisterClassMap<CsvEntryMap>();
+                csv.WriteRecords(PopulateCSV(familyList));
+            }
+        }
 
         public List<CsvEntry> PopulateCSV(List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList)
         {
@@ -35,24 +51,6 @@ namespace BohannanGEDCOMConsole
             }
 
             return tempList;
-        }
-
-        public void CreateCSV(List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList)
-        {
-            var culture = new CultureInfo("en-US");
-
-            StringBuilder dateSb = new StringBuilder(DateTime.Now.ToString(culture));
-            dateSb.Replace("/", "_");
-            dateSb.Replace(" ", "_");
-            dateSb.Replace(":", "_");
-
-            using (var writer = new StreamWriter($"GEDCOM_CSV_{dateSb}.csv"))
-            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-            {
-                Console.WriteLine("Writing to CSV...");
-                csv.Context.RegisterClassMap<CsvEntryMap>();
-                csv.WriteRecords(PopulateCSV(familyList));
-            }
         }
 
         public List<GeneGenie.Gedcom.GedcomIndividualRecord> ParseGedcom(string[] args)

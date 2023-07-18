@@ -14,30 +14,48 @@ namespace BohannanGEDCOMConsole
 {
 	public class MultiThreadedGedcomParser : IGedcomParser
 	{
-		public MultiThreadedGedcomParser()
-		{
-		}
+        public MultiThreadedGedcomParser() { }
 
-        public List<CsvEntry> PopulateCSV(List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList)
+        public List<GeneGenie.Gedcom.GedcomIndividualRecord> ParseGedcom(string[] args)
         {
-            var tempList = new List<CsvEntry>();
+            Task[] tasks = new Task[args.Length - 2];
 
-            foreach (GeneGenie.Gedcom.GedcomIndividualRecord record in familyList)
+            List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList = new();
+            var reader = GedcomRecordReader.CreateReader(args[0]);
+
+            for (int i = 0; i < args.Length - 2; i++)
             {
-                if (record != null)
+                int innerI = i;
+                tasks[i] = Task.Run(() =>
                 {
-                    tempList.Add(new CsvEntry()
-                    {
-                        FirstName = record.Names[0]?.Given,
-                        LastName = record.Names[0]?.Surname,
-                        Address = $"{record.Address?.City}, {record.Address?.State}",
-                        Birthday = record.Birth?.Date?.DateString,
-                        IsAlive = (record.Dead) ? "No" : "Yes"
-                    });
-                }
+                    List<GeneGenie.Gedcom.GedcomIndividualRecord> tempList = threadFunc(args, innerI, reader);
+                    if (tempList.Count > 0) familyList.AddRange(tempList);
+                });
             }
 
-            return tempList;
+            Task.WaitAll(tasks);
+
+            return familyList;
+        }
+
+        public void CreateCSV(List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList)
+        {
+            var culture = new CultureInfo("en-US");
+
+            StringBuilder dateSb = new StringBuilder(DateTime.Now.ToString(culture));
+            dateSb.Replace("/", "_");
+            dateSb.Replace(" ", "_");
+            dateSb.Replace(":", "_");
+
+            using (var writer = new StreamWriter($"GEDCOM_CSV_{dateSb}.csv"))
+            using (var csv = new CsvWriter(writer, culture))
+            {
+                Console.WriteLine("Writing to CSV...");
+                csv.Context.RegisterClassMap<CsvEntryMap>();
+                csv.WriteRecords(PopulateCSV(familyList));
+            }
+
+            Console.WriteLine("Life finds a way.");
         }
 
         public List<GeneGenie.Gedcom.GedcomIndividualRecord> threadFunc(string[] args, int i, GedcomRecordReader reader)
@@ -58,47 +76,31 @@ namespace BohannanGEDCOMConsole
             return familyList;
         }
 
-        public void CreateCSV(List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="familyList"></param>
+        /// <returns>familyList once it has been </returns>
+        public List<CsvEntry> PopulateCSV(List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList)
         {
-            var culture = new CultureInfo("en-US");
+            var tempList = new List<CsvEntry>();
 
-            StringBuilder dateSb = new StringBuilder(DateTime.Now.ToString(culture));
-            dateSb.Replace("/", "_");
-            dateSb.Replace(" ", "_");
-            dateSb.Replace(":", "_");
-
-            using (var writer = new StreamWriter($"GEDCOM_CSV_{dateSb}.csv"))
-            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            foreach (GeneGenie.Gedcom.GedcomIndividualRecord record in familyList)
             {
-                Console.WriteLine("Writing to CSV...");
-                csv.Context.RegisterClassMap<CsvEntryMap>();
-                csv.WriteRecords(PopulateCSV(familyList));
-            }
-
-            Console.WriteLine("Life finds a way.");
-        }
-
-        public List<GeneGenie.Gedcom.GedcomIndividualRecord> ParseGedcom(string[] args)
-        {
-            Console.WriteLine("Entering mt parsegedcom method...");
-            Task[] tasks = new Task[args.Length - 2];
-
-            List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList = new();
-            var reader = GedcomRecordReader.CreateReader(args[0]);
-
-            for (int i = 0; i < args.Length - 2; i++)
-            {
-                int innerI = i;
-                tasks[i] = Task.Run(() =>
+                if (record != null)
                 {
-                    List<GeneGenie.Gedcom.GedcomIndividualRecord> tempList = threadFunc(args, innerI, reader);
-                    if (tempList.Count > 0) familyList.AddRange(tempList);
-                });
+                    tempList.Add(new CsvEntry()
+                    {
+                        FirstName = record.Names[0]?.Given,
+                        LastName = record.Names[0]?.Surname,
+                        Address = $"{record.Address?.City}, {record.Address?.State}",
+                        Birthday = record.Birth?.Date?.DateString,
+                        IsAlive = (record.Dead) ? "No" : "Yes"
+                    });
+                }
             }
 
-            Task.WaitAll(tasks);
-           
-            return familyList;
+            return tempList;
         }
     }
 }
