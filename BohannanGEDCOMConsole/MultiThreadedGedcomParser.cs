@@ -52,7 +52,7 @@ namespace BohannanGEDCOMConsole
             {
                 Console.WriteLine("Writing to CSV...");
                 csv.Context.RegisterClassMap<CsvEntryMap>();
-                csv.WriteRecords(PopulateCSV(familyList));
+                csv.WriteRecords(GenerateCSVEntryList(familyList));
             }
 
             Console.WriteLine("Life finds a way.");
@@ -81,7 +81,7 @@ namespace BohannanGEDCOMConsole
         /// </summary>
         /// <param name="familyList"></param>
         /// <returns>familyList once it has been </returns>
-        public List<CsvEntry> PopulateCSV(List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList)
+        private List<CsvEntry> GenerateCSVEntryList(List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList)
         {
             var tempList = new List<CsvEntry>();
 
