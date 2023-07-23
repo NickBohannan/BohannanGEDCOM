@@ -50,15 +50,15 @@ namespace BohannanGEDCOMConsole
     {
         static void Main(string[] args)
         {
-            Stopwatch sw = Stopwatch.StartNew();
+            var stopWatch = Stopwatch.StartNew();
 
             // SingleThreadedGedcomParser gParser = new SingleThreadedGedcomParser();
             MultiThreadedGedcomParser gParser = new MultiThreadedGedcomParser();
 
             List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList = gParser.ParseGedcom(args);
             gParser.CreateCSV(familyList);
-            sw.Stop();
-            Console.WriteLine($"Elapsed Millipoobles: {sw.ElapsedMilliseconds.ToString()}");
+            stopWatch.Stop();
+            Console.WriteLine($"Elapsed Millipoobles: {stopWatch.ElapsedMilliseconds.ToString()}");
 
             Console.ReadKey();
         }

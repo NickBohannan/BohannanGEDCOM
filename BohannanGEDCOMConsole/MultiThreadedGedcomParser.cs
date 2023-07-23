@@ -20,7 +20,7 @@ namespace BohannanGEDCOMConsole
         {
             Task[] tasks = new Task[args.Length - 2];
 
-            List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList = new();
+            var familyList = new List<GeneGenie.Gedcom.GedcomIndividualRecord>();
             var reader = GedcomRecordReader.CreateReader(args[0]);
 
             for (int i = 0; i < args.Length - 2; i++)
@@ -42,7 +42,7 @@ namespace BohannanGEDCOMConsole
         {
             var culture = new CultureInfo("en-US");
 
-            StringBuilder dateSb = new StringBuilder(DateTime.Now.ToString(culture));
+            var dateSb = new StringBuilder(DateTime.Now.ToString(culture));
             dateSb.Replace("/", "_");
             dateSb.Replace(" ", "_");
             dateSb.Replace(":", "_");
@@ -60,7 +60,7 @@ namespace BohannanGEDCOMConsole
 
         public List<GeneGenie.Gedcom.GedcomIndividualRecord> threadFunc(string[] args, int i, GedcomRecordReader reader)
         {
-            List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList = new();
+             var familyList = new List<GeneGenie.Gedcom.GedcomIndividualRecord>();
 
             List<GeneGenie.Gedcom.GedcomIndividualRecord> peeps = reader.Database.Individuals
                 .Where(ind => ind.Names.Any(name => name.Surname == args[i + 1]))
@@ -76,12 +76,7 @@ namespace BohannanGEDCOMConsole
             return familyList;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="familyList"></param>
-        /// <returns>familyList once it has been </returns>
-        private List<CsvEntry> GenerateCSVEntryList(List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList)
+        public List<CsvEntry> GenerateCSVEntryList(List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList)
         {
             var tempList = new List<CsvEntry>();
 

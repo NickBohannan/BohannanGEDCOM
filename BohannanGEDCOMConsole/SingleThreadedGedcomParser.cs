@@ -17,7 +17,7 @@ namespace BohannanGEDCOMConsole
         {
             var culture = new CultureInfo("en-US");
 
-            StringBuilder dateSb = new StringBuilder(DateTime.Now.ToString(culture));
+            var dateSb = new StringBuilder(DateTime.Now.ToString(culture));
             dateSb.Replace("/", "_");
             dateSb.Replace(" ", "_");
             dateSb.Replace(":", "_");
@@ -27,11 +27,11 @@ namespace BohannanGEDCOMConsole
             {
                 Console.WriteLine("Writing to CSV...");
                 csv.Context.RegisterClassMap<CsvEntryMap>();
-                csv.WriteRecords(PopulateCSV(familyList));
+                csv.WriteRecords(GenerateCSVEntryList(familyList));
             }
         }
 
-        public List<CsvEntry> PopulateCSV(List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList)
+        public List<CsvEntry> GenerateCSVEntryList(List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList)
         {
             var tempList = new List<CsvEntry>();
 
@@ -57,7 +57,7 @@ namespace BohannanGEDCOMConsole
         {
             var reader = GedcomRecordReader.CreateReader(args[0]);
 
-            List<GeneGenie.Gedcom.GedcomIndividualRecord> familyList = new();
+            var familyList = new List<GeneGenie.Gedcom.GedcomIndividualRecord>();
 
             for (int i = 0; i < args.Length - 1; i++)
             {
